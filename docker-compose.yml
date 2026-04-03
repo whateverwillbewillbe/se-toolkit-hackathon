@@ -1,0 +1,56 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-grocery_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-grocery_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-grocery_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-grocery_user} -d ${POSTGRES_DB:-grocery_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-grocery_user}:${POSTGRES_PASSWORD:-grocery_secret}@db:5432/${POSTGRES_DB:-grocery_db}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  bot:
+    build:
+      context: .
+      dockerfile: bot/Dockerfile
+    env_file:
+      - .env
+    environment:
+      BACKEND_URL: http://backend:8000
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  pgdata:
