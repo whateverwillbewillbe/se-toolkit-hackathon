@@ -69,7 +69,7 @@ cp .env.example .env
 - `OPENROUTER_API_KEY` — ключ от [OpenRouter](https://openrouter.ai/) (есть бесплатные модели)
 
 > **OpenRouter**: зарегистрируйтесь на openrouter.ai, создайте API key.
-> Бесплатные модели: `meta-llama/llama-3.1-8b-instruct:free`, `google/gemma-2-9b-it:free`.
+> Бесплатные модели: `google/gemma-2-9b-it:free`, `meta-llama/llama-3.3-8b-instruct:free`.
 > Модель можно сменить через параметр `LLM_MODEL` в `.env`.
 
 ### 2. Запуск

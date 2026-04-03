@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     TG_BOT_TOKEN: str
     OPENROUTER_API_KEY: str
     BACKEND_URL: str = "http://backend:8000"
-    LLM_MODEL: str = "meta-llama/llama-3.1-8b-instruct:free"
+    LLM_MODEL: str = "google/gemma-2-9b-it:free"
 
     class Config:
         env_file = ".env"
