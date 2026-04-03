@@ -3,6 +3,9 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+ARG VITE_DEFAULT_USER_ID=1
+ENV VITE_DEFAULT_USER_ID=${VITE_DEFAULT_USER_ID}
+
 COPY frontend/package.json frontend/package-lock.json* ./
 RUN npm install
 

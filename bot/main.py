@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     OPENROUTER_API_KEY: str
     BACKEND_URL: str = "http://backend:8000"
     LLM_MODEL: str = "qwen/qwen3.6-plus:free"
+    DEFAULT_USER_ID: int = 1
 
     class Config:
         env_file = ".env"
@@ -118,10 +119,11 @@ async def cmd_help(message: types.Message):
 
 @dp.message()
 async def handle_grocery_list(message: types.Message):
-    user_id = message.from_user.id
+    chat_id = message.chat.id
+    user_id = settings.DEFAULT_USER_ID
 
     # Typing indicator
-    await bot.send_chat_action(chat_id=user_id, action="typing")
+    await bot.send_chat_action(chat_id=chat_id, action="typing")
 
     try:
         response = await client.chat.completions.create(

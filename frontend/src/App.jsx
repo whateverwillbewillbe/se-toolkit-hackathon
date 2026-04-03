@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getItems, createItem, toggleItem } from './api';
 
-const DEFAULT_USER_ID = 1;
+const DEFAULT_USER_ID = Number(import.meta.env.VITE_DEFAULT_USER_ID) || 1;
 
 const CATEGORY_COLORS = {
   'Овощи': 'bg-green-100 text-green-800',

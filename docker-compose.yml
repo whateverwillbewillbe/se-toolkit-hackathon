@@ -23,6 +23,7 @@ services:
       - .env
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-grocery_user}:${POSTGRES_PASSWORD:-grocery_secret}@db:5432/${POSTGRES_DB:-grocery_db}
+      DEFAULT_USER_ID: ${DEFAULT_USER_ID:-1}
     ports:
       - "8000:8000"
     depends_on:
@@ -38,6 +39,7 @@ services:
       - .env
     environment:
       BACKEND_URL: http://backend:8000
+      DEFAULT_USER_ID: ${DEFAULT_USER_ID:-1}
     depends_on:
       - backend
     restart: unless-stopped
@@ -46,6 +48,8 @@ services:
     build:
       context: .
       dockerfile: frontend/Dockerfile
+      args:
+        VITE_DEFAULT_USER_ID: ${DEFAULT_USER_ID:-1}
     ports:
       - "3000:80"
     depends_on:
