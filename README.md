@@ -5,17 +5,17 @@ AI-powered grocery list with smart item parsing and automatic recipe generation.
 ## Demo
 
 ### Web Interface — Shopping List
-![Shopping List](https://placehold.co/600x400/10b981/ffffff?text=Grocery+List+%E2%80%94+Grouped+by+Category)
+<img width="1000" height="1280" alt="image" src="https://github.com/user-attachments/assets/b603795b-2154-4f07-9c6d-db95a9cc8c59" />
 
 Items are grouped by category (Vegetables, Fruits, Dairy, etc.) with smooth checkbox animations.
 
 ### Recipe Generator
-![Recipe Modal](https://placehold.co/600x400/f59e0b/ffffff?text=Recipe+Generator+%E2%80%94+AI+Modal)
+<img width="1000" height="1280" alt="image" src="https://github.com/user-attachments/assets/db3ca732-465a-4c69-9da9-dd44b14f3e46" />
 
 Click "✨ Magic Recipe" and get a unique recipe from items you've already bought.
 
 ### Telegram Bot
-![Telegram Bot](https://placehold.co/600x400/3b82f6/ffffff?text=Telegram+Bot+%E2%80%94+Smart+Parsing)
+<img width="669" height="1280" alt="image" src="https://github.com/user-attachments/assets/99034797-11d6-4f90-af34-44b1992a673a" />
 
 Send a natural-language message like "Buy apples, milk, bread" and the AI extracts, categorizes, and saves each item.
 
