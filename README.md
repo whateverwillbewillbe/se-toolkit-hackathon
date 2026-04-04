@@ -1,106 +1,125 @@
-# 🛒 Smart Grocery Sync v2
+# 🛒 Smart Grocery Sync
 
-AI-powered grocery list with Telegram bot, recipe generation, and a modern React interface.
+AI-powered grocery list with smart item parsing and automatic recipe generation.
 
-## ✨ Features
+## Demo
 
-- **Smart Parsing** — send any shopping list to the Telegram bot, AI extracts and categorizes items
-- **Recipe Generator** — mark items as bought, then generate recipes from what you have
-- **Web Interface** — manage your list with a clean, grouped, animated UI
-- **Telegram Commands** — `/list`, `/clear`, `/recipe` right in your bot
+### Web Interface — Shopping List
+![Shopping List](https://placehold.co/600x400/10b981/ffffff?text=Grocery+List+%E2%80%94+Grouped+by+Category)
 
-## 🏗️ Architecture
+Items are grouped by category (Vegetables, Fruits, Dairy, etc.) with smooth checkbox animations.
 
-```
-┌─────────────┐    POST /api/items       ┌──────────┐
-│  Telegram   │ ──────────────────────►   │          │
-│  Bot        │                           │ Backend  │
-│  aiogram    │ ◄──────────────────────  │ FastAPI  │
-└─────────────┘    GET/PATCH/DELETE       │          │
-                                          └────┬─────┘
-┌─────────────┐                                │
-│  Frontend   │ ◄──────────────────────────────┤
-│  React+Vite │                                │
-│  Tailwind   │                       ┌────────▼───────┐
-└─────────────┘                       │   PostgreSQL   │
-                                      └────────────────┘
-```
+### Recipe Generator
+![Recipe Modal](https://placehold.co/600x400/f59e0b/ffffff?text=Recipe+Generator+%E2%80%94+AI+Modal)
 
-## 📁 Project Structure
+Click "✨ Magic Recipe" and get a unique recipe from items you've already bought.
 
-```
-.
-├── backend/
-│   ├── app/
-│   │   ├── main.py            # Entry point, CORS, lifespan
-│   │   ├── config.py          # Settings from .env
-│   │   ├── database.py        # Async engine, session
-│   │   ├── models/item.py     # SQLAlchemy model
-│   │   ├── schemas/item.py    # Pydantic DTOs
-│   │   └── routers/
-│   │       ├── items.py       # CRUD: GET, POST, PATCH, DELETE
-│   │       └── recipe.py      # POST /api/generate-recipe
-│   ├── requirements.txt
-│   └── Dockerfile
-├── bot/
-│   ├── main.py                # aiogram bot + LLM parsing
-│   ├── requirements.txt
-│   └── Dockerfile
-├── frontend/
-│   ├── src/
-│   │   ├── App.jsx            # Main component (grouped list + recipe modal)
-│   │   ├── App.css            # Animations
-│   │   ├── api.js             # Axios API client
-│   │   ├── main.jsx
-│   │   └── index.css
-│   ├── index.html
-│   ├── package.json
-│   ├── vite.config.js
-│   ├── tailwind.config.js
-│   ├── nginx.conf
-│   ├── Dockerfile             # Multi-stage: node → nginx
-│   └── postcss.config.js
-├── docker-compose.yml
-├── .env.example
-└── README.md
-```
+### Telegram Bot
+![Telegram Bot](https://placehold.co/600x400/3b82f6/ffffff?text=Telegram+Bot+%E2%80%94+Smart+Parsing)
 
-## 🚀 Quick Start
-
-### 1. Configure Environment
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` and provide:
-
-| Variable | Description | Where to get |
-|---|---|---|
-| `TG_BOT_TOKEN` | Telegram bot token | [@BotFather](https://t.me/BotFather) |
-| `OPENROUTER_API_KEY` | LLM API key | [openrouter.ai/keys](https://openrouter.ai/keys) |
-| `POSTGRES_PASSWORD` | Database password | Your choice |
-
-### 2. Run Everything
-
-```bash
-docker compose up --build
-```
-
-### 3. Access
-
-| Service | URL |
-|---|---|
-| Frontend | http://localhost:3000 |
-| Backend API | http://localhost:8000 |
-| Swagger Docs | http://localhost:8000/docs |
-| PostgreSQL | localhost:5432 |
+Send a natural-language message like "Buy apples, milk, bread" and the AI extracts, categorizes, and saves each item.
 
 ---
 
-## 🛠️ Deploy on Ubuntu 24.04 VM
+## Product Context
 
-### Step 1 — Install Docker
+### End Users
+Anyone who shops for groceries — students, families, roommates — and wants to keep track of what to buy and what they already have.
+
+### Problem
+People forget what they need to buy, lose paper lists, and don't know what to cook from ingredients they already have at home.
+
+### Our Solution
+A smart grocery list that you can manage from a web app or by simply messaging a Telegram bot. Mark items as bought, then let AI invent a recipe from what you have. One sentence to the bot or a click in the web app — that's all it takes.
+
+---
+
+## Features
+
+### Version 1 (Core)
+| Feature | Status |
+|---|---|
+| Add grocery items via web form (name + category) | ✅ Implemented |
+| Toggle bought status with checkbox | ✅ Implemented |
+| View items grouped by category | ✅ Implemented |
+| AI-powered Telegram bot that parses natural language | ✅ Implemented |
+| Persistent storage in PostgreSQL | ✅ Implemented |
+| REST API (FastAPI + SQLAlchemy async) | ✅ Implemented |
+| Docker Compose deployment | ✅ Implemented |
+
+### Version 2 (Extended)
+| Feature | Status |
+|---|---|
+| AI Recipe Generator — generates recipes from bought items | ✅ Implemented |
+| `/list` command in Telegram — show current shopping list | ✅ Implemented |
+| `/clear` command in Telegram — delete all items | ✅ Implemented |
+| Delete individual items from web UI | ✅ Implemented |
+| Clear all items button in web UI | ✅ Implemented |
+| Animated UI (checkbox bounce, modal transitions) | ✅ Implemented |
+| Structured logging in backend and bot | ✅ Implemented |
+
+---
+
+## Usage
+
+### Web App
+1. Open `http://<VM_IP>:3000` in your browser
+2. Add items manually using the form (name + category)
+3. Check off items as you buy them
+4. Click **✨ Magic Recipe** to generate a recipe from bought items
+5. Click **🗑️ Clear All** to reset the list
+6. Hover over an item and click **✕** to delete it individually
+
+### Telegram Bot *(requires Telegram access)*
+| Action | Example |
+|---|---|
+| Add items | `Buy apples, milk, bread and chicken` |
+| Show list | `/list` |
+| Clear list | `/clear` |
+| Generate recipe | `/recipe` |
+| Help | `/help` |
+
+### REST API
+```bash
+# Health check
+curl http://localhost:8000/health
+
+# Add an item
+curl -X POST http://localhost:8000/api/items/ \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Bread", "category": "Grocery", "user_id": 1}'
+
+# Get all items
+curl http://localhost:8000/api/items/1
+
+# Toggle bought status
+curl -X PATCH http://localhost:8000/api/items/1
+
+# Delete single item
+curl -X DELETE http://localhost:8000/api/items/1
+
+# Clear all items
+curl -X DELETE http://localhost:8000/api/items/user/1
+
+# Generate recipe from bought items
+curl -X POST http://localhost:8000/api/generate-recipe/1
+```
+
+---
+
+## Deployment
+
+### Requirements
+- **OS**: Ubuntu 24.04 LTS (tested on university VMs)
+- **Docker** and **Docker Compose** (step-by-step below)
+- **Internet access** for pulling Docker images and calling OpenRouter API
+- **Ports**: 3000 (frontend), 8000 (backend API) must be accessible
+
+> **Note**: Telegram bots are blocked on university VMs. The bot works on any unrestricted network. The web app and API are fully functional without Telegram.
+
+### Step-by-Step
+
+#### 1. Install Docker
 
 ```bash
 # Remove old packages
@@ -131,6 +150,7 @@ sudo systemctl start docker
 
 # Add your user to docker group (no sudo needed)
 sudo usermod -aG docker $USER
+# Re-login for the group change to take effect
 ```
 
 Verify:
@@ -139,94 +159,76 @@ docker --version
 docker compose version
 ```
 
-### Step 2 — Clone & Configure
+#### 2. Clone & Configure
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/se-toolkit-hackathon.git
 cd se-toolkit-hackathon
 
 cp .env.example .env
-nano .env  # Fill in TG_BOT_TOKEN, OPENROUTER_API_KEY, POSTGRES_PASSWORD
+nano .env
 ```
 
-### Step 3 — Open Firewall Ports
+Required `.env` variables:
+
+| Variable | Description | Required for |
+|---|---|---|
+| `OPENROUTER_API_KEY` | Free LLM API key from [openrouter.ai](https://openrouter.ai) | Recipe generation + bot |
+| `POSTGRES_PASSWORD` | Database password | All services |
+| `TG_BOT_TOKEN` | Token from [@BotFather](https://t.me/BotFather) | Telegram bot (optional) |
+
+> Get a free `OPENROUTER_API_KEY` at [openrouter.ai/keys](https://openrouter.ai/keys) — no credit card needed.
+
+#### 3. Open Firewall Ports
 
 ```bash
-# If UFW is enabled
-sudo ufw allow 3000/tcp   # Frontend
-sudo ufw allow 8000/tcp   # Backend API
+sudo ufw allow 3000/tcp    # Frontend
+sudo ufw allow 8000/tcp    # Backend API
 sudo ufw reload
-
-# If using cloud provider (AWS/GCP/etc.), also open ports in the security group
 ```
 
-### Step 4 — Launch
+If using a cloud provider (AWS, GCP, etc.), also open these ports in the security group.
+
+#### 4. Launch
 
 ```bash
 docker compose up -d --build
-
-# Check logs
-docker compose logs -f
-
-# Check status
-docker compose ps
 ```
 
-### Step 5 — Access from Your Computer
-
-In your browser, open: `http://<VM_IP_ADDRESS>:3000`
-
----
-
-## 📱 Usage
-
-### Telegram Bot
-
-| Command | Description |
-|---|---|
-| *Any text* | `Buy apples, milk, bread and chicken` — AI parses and adds items |
-| `/list` | Show current shopping list grouped by category |
-| `/clear` | Delete all items from your list |
-| `/recipe` | Generate a recipe from items marked as bought ✅ |
-| `/help` | Show available commands |
-
-### Web Interface
-
-1. **Add items** — type a name, pick a category, click "Add"
-2. **Check off items** — click the checkbox (with bounce animation)
-3. **Generate recipe** — click "✨ Magic Recipe" to get a recipe from bought items
-4. **Clear all** — click "🗑️ Clear All" to reset your list
-
-### API
-
+Check that everything started:
 ```bash
-# Health check
-curl http://localhost:8000/health
-
-# Get all items for user 1
-curl http://localhost:8000/api/items/1
-
-# Get only unbought items
-curl http://localhost:8000/api/items/1?is_bought=false
-
-# Add an item
-curl -X POST http://localhost:8000/api/items/ \
-  -H "Content-Type: application/json" \
-  -d '{"name": "Bread", "category": "Grocery", "user_id": 1}'
-
-# Toggle bought status
-curl -X PATCH http://localhost:8000/api/items/1
-
-# Delete all items for user 1
-curl -X DELETE http://localhost:8000/api/items/1
-
-# Generate recipe from bought items
-curl -X POST http://localhost:8000/api/generate-recipe/1
+docker compose ps
+docker compose logs -f
 ```
+
+#### 5. Access
+
+| Service | URL |
+|---|---|
+| Web App | `http://<VM_IP>:3000` |
+| API Docs (Swagger) | `http://<VM_IP>:8000/docs` |
+| Backend API | `http://<VM_IP>:8000` |
 
 ---
 
-## 🔧 Tech Stack
+## Architecture
+
+```
+┌─────────────┐    POST /api/items       ┌──────────┐
+│  Telegram   │ ──────────────────────►   │          │
+│  Bot        │                           │ Backend  │
+│  aiogram    │ ◄──────────────────────  │ FastAPI  │
+└─────────────┘    GET/PATCH/DELETE       │          │
+                                          └────┬─────┘
+┌─────────────┐                                │
+│  Frontend   │ ◄──────────────────────────────┤
+│  React+Vite │                                │
+│  Tailwind   │                       ┌────────▼───────┐
+└─────────────┘                       │   PostgreSQL   │
+                                      └────────────────┘
+```
+
+### Tech Stack
 
 | Component | Technology |
 |---|---|
@@ -236,7 +238,7 @@ curl -X POST http://localhost:8000/api/generate-recipe/1
 | **Frontend** | React 18, Vite, Tailwind CSS, Axios |
 | **DevOps** | Docker, Docker Compose, Nginx (multi-stage build) |
 
-## 📡 API Reference
+### API Reference
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -245,5 +247,6 @@ curl -X POST http://localhost:8000/api/generate-recipe/1
 | `GET` | `/api/items/{user_id}?is_bought=false` | Only unbought items |
 | `POST` | `/api/items/` | Add an item `{name, category, user_id}` |
 | `PATCH` | `/api/items/{item_id}` | Toggle `is_bought` status |
-| `DELETE` | `/api/items/{user_id}` | Delete all items for a user |
+| `DELETE` | `/api/items/{item_id}` | Delete a single item |
+| `DELETE` | `/api/items/user/{user_id}` | Delete all items for a user |
 | `POST` | `/api/generate-recipe/{user_id}` | Generate recipe from bought items |
