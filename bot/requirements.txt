@@ -1,0 +1,4 @@
+aiogram==3.17.0
+openai==1.58.1
+aiohttp==3.11.11
+pydantic-settings==2.7.0
