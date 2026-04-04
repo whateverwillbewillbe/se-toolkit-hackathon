@@ -4,18 +4,18 @@ import { getItems, createItem, toggleItem } from './api';
 const DEFAULT_USER_ID = Number(import.meta.env.VITE_DEFAULT_USER_ID) || 1;
 
 const CATEGORY_COLORS = {
-  'Овощи': 'bg-green-100 text-green-800',
-  'Фрукты': 'bg-yellow-100 text-yellow-800',
-  'Молочка': 'bg-blue-100 text-blue-800',
-  'Мясо': 'bg-red-100 text-red-800',
-  'Бакалея': 'bg-amber-100 text-amber-800',
-  'Другое': 'bg-gray-100 text-gray-800',
+  'Vegetables': 'bg-green-100 text-green-800',
+  'Fruits': 'bg-yellow-100 text-yellow-800',
+  'Dairy': 'bg-blue-100 text-blue-800',
+  'Meat': 'bg-red-100 text-red-800',
+  'Grocery': 'bg-amber-100 text-amber-800',
+  'Other': 'bg-gray-100 text-gray-800',
 };
 
 function App() {
   const [items, setItems] = useState([]);
   const [newItemName, setNewItemName] = useState('');
-  const [newItemCategory, setNewItemCategory] = useState('Другое');
+  const [newItemCategory, setNewItemCategory] = useState('Other');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -26,7 +26,7 @@ function App() {
       const { data } = await getItems(DEFAULT_USER_ID);
       setItems(data);
     } catch {
-      setError('Не удалось загрузить список покупок');
+      setError('Failed to load shopping list');
     } finally {
       setLoading(false);
     }
@@ -50,9 +50,9 @@ function App() {
       });
       setItems((prev) => [...prev, data]);
       setNewItemName('');
-      setNewItemCategory('Другое');
+      setNewItemCategory('Other');
     } catch {
-      setError('Не удалось добавить товар');
+      setError('Failed to add item');
     }
   };
 
@@ -64,7 +64,7 @@ function App() {
         prev.map((it) => (it.id === item.id ? data : it))
       );
     } catch {
-      setError('Не удалось обновить статус');
+      setError('Failed to update status');
     }
   };
 
@@ -76,10 +76,10 @@ function App() {
       <header className="bg-emerald-600 text-white shadow-lg">
         <div className="max-w-2xl mx-auto px-4 py-6">
           <h1 className="text-3xl font-bold flex items-center gap-2">
-            🛒 Мои покупки
+            🛒 My Groceries
           </h1>
           <p className="text-emerald-100 mt-1">
-            {items.length} товаров · Куплено {boughtCount} из {items.length}
+            {items.length} items · {boughtCount} bought
           </p>
         </div>
       </header>
@@ -92,7 +92,7 @@ function App() {
               type="text"
               value={newItemName}
               onChange={(e) => setNewItemName(e.target.value)}
-              placeholder="Название товара..."
+              placeholder="Item name..."
               className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
             <select
@@ -108,7 +108,7 @@ function App() {
               type="submit"
               className="bg-emerald-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-emerald-700 transition"
             >
-              Добавить
+              Add
             </button>
           </div>
         </form>
@@ -122,11 +122,11 @@ function App() {
 
         {/* Items List */}
         {loading ? (
-          <div className="text-center py-12 text-gray-500">Загрузка...</div>
+          <div className="text-center py-12 text-gray-500">Loading...</div>
         ) : items.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
-            <p className="text-xl mb-2">📝 Список пуст</p>
-            <p className="text-sm">Добавьте товары вручную или отправьте список боту в Telegram</p>
+            <p className="text-xl mb-2">📝 Your list is empty</p>
+            <p className="text-sm">Add items manually or send a list to the Telegram bot</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -153,7 +153,7 @@ function App() {
                   </p>
                   <span
                     className={`inline-block text-xs px-2 py-0.5 rounded-full mt-1 ${
-                      CATEGORY_COLORS[item.category] || CATEGORY_COLORS['Другое']
+                      CATEGORY_COLORS[item.category] || CATEGORY_COLORS['Other']
                     }`}
                   >
                     {item.category}
@@ -167,7 +167,7 @@ function App() {
         {/* Bot hint */}
         <div className="mt-8 bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-center">
           <p className="text-emerald-700">
-            💡 <strong>Совет:</strong> Напишите список покупок в Telegram-боте, и он автоматически добавит товары.
+            💡 <strong>Tip:</strong> Write your shopping list in the Telegram bot and it will auto-add all items.
           </p>
         </div>
       </main>

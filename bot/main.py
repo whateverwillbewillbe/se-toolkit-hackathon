@@ -34,15 +34,15 @@ client = AsyncOpenAI(
     base_url="https://openrouter.ai/api/v1",
 )
 
-VALID_CATEGORIES = ["Овощи", "Фрукты", "Молочка", "Мясо", "Бакалея", "Другое"]
+VALID_CATEGORIES = ["Vegetables", "Fruits", "Dairy", "Meat", "Grocery", "Other"]
 
 SYSTEM_PROMPT = (
-    "Ты — ассистент по покупкам. Извлеки список продуктов из сообщения пользователя "
-    "и верни ТОЛЬКО валидный JSON массив объектов без какого-либо дополнительного текста. "
-    "Формат: [{\"name\": \"...\", \"category\": \"...\"}]. "
-    f"Категории выбери ТОЛЬКО из: {', '.join(VALID_CATEGORIES)}. "
-    "Если категория неочевидна, используй 'Другое'. "
-    "Не добавляй markdown-блоки, не добавляй пояснений. Только JSON."
+    "You are a shopping assistant. Extract a list of grocery items from the user's message "
+    "and return ONLY a valid JSON array of objects, with no additional text. "
+    "Format: [{\"name\": \"...\", \"category\": \"...\"}]. "
+    f"Choose categories ONLY from: {', '.join(VALID_CATEGORIES)}. "
+    "If the category is unclear, use 'Other'. "
+    "Do not include markdown code blocks or explanations. Only JSON."
 )
 
 
@@ -77,9 +77,9 @@ async def send_to_backend(items: list, user_id: int) -> int:
     async with aiohttp.ClientSession() as session:
         for item in items:
             name = item.get("name", "").strip()
-            category = item.get("category", "Другое")
+            category = item.get("category", "Other")
             if category not in VALID_CATEGORIES:
-                category = "Другое"
+                category = "Other"
             if not name:
                 continue
             payload = {"name": name, "category": category, "user_id": user_id}
@@ -101,19 +101,19 @@ async def send_to_backend(items: list, user_id: int) -> int:
 @dp.message(CommandStart())
 async def cmd_start(message: types.Message):
     await message.answer(
-        "Привет! Я — бот для списка покупок.\n"
-        "Напиши мне, что нужно купить (например: *Купи яблоки и молоко*), "
-        "и я добавлю это в твой список.\n\n"
-        "Также можно управлять списком через веб-приложение."
+        "Hi! I'm your grocery shopping assistant.\n"
+        "Tell me what you need to buy (e.g. *Buy apples and milk*), "
+        "and I'll add it to your list.\n\n"
+        "You can also manage your list via the web app."
     )
 
 
 @dp.message(Command("help"))
 async def cmd_help(message: types.Message):
     await message.answer(
-        "Просто напиши список покупок в любом формате.\n"
-        "Пример: `Купи 2 яблока, молоко, хлеб и курицу`\n"
-        "Я распознаю продукты и распределю по категориям."
+        "Just write your shopping list in any format.\n"
+        "Example: `Get 2 apples, milk, bread, and chicken`\n"
+        "I'll recognize the items and categorize them."
     )
 
 
@@ -137,25 +137,25 @@ async def handle_grocery_list(message: types.Message):
         )
         raw_text = response.choices[0].message.content or "[]"
     except Exception as e:
-        logger.error(f"OpenAI API error: {e}")
-        await message.answer("Произошла ошибка при обработке запроса. Попробуйте позже.")
+        logger.error(f"OpenRouter API error: {e}")
+        await message.answer("An error occurred while processing your request. Please try again later.")
         return
 
     items = _parse_json_from_response(raw_text)
 
     if not items:
         await message.answer(
-            "Не удалось распознать продукты. Попробуйте переформулировать запрос.\n"
-            "Пример: `Купи яблоки, молоко, хлеб`"
+            "Couldn't recognize the items. Please try rephrasing your request.\n"
+            "Example: `Buy apples, milk, bread`"
         )
         return
 
     saved_count = await send_to_backend(items, user_id)
 
-    items_list = "\n".join(f"• {it.get('name', '?')} ({it.get('category', 'Другое')})" for it in items)
+    items_list = "\n".join(f"• {it.get('name', '?')} ({it.get('category', 'Other')})" for it in items)
 
     await message.answer(
-        f"Добавлено в список ({saved_count} шт.):\n{items_list}",
+        f"Added to your list ({saved_count} items):\n{items_list}",
         parse_mode=None,
     )
 

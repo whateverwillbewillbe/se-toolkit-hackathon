@@ -1,13 +1,13 @@
 # 🛒 Smart Grocery Sync
 
-Умный список покупок: Telegram-бот с AI-парсингом, FastAPI бэкенд и React-фронтенд.
+Smart grocery list with AI-powered Telegram bot, FastAPI backend, and React frontend.
 
-## Архитектура
+## Architecture
 
 ```
 ┌─────────────┐     POST /api/items      ┌──────────┐
 │  Telegram   │ ──────────────────────►   │          │
-│  Bot (aiogram + OpenAI)                │ Backend  │
+│  Bot (aiogram + OpenRouter)            │ Backend  │
 └─────────────┘                          │ FastAPI  │
                                          │          │
 ┌─────────────┐     GET/PATCH /api/items │          │
@@ -20,35 +20,35 @@
                                        └─────────────┘
 ```
 
-## Структура проекта
+## Project Structure
 
 ```
 .
 ├── backend/               # FastAPI + SQLAlchemy
 │   ├── app/
-│   │   ├── main.py        # Точка входа, CORS, lifespan
-│   │   ├── config.py      # Настройки из .env
-│   │   ├── database.py    # Async engine, сессия
-│   │   ├── models/item.py # SQLAlchemy модель
-│   │   ├── schemas/item.py# Pydantic схемы
-│   │   └── routers/items.py # API роуты
+│   │   ├── main.py        # Entry point, CORS, lifespan
+│   │   ├── config.py      # Settings from .env
+│   │   ├── database.py    # Async engine, session
+│   │   ├── models/item.py # SQLAlchemy model
+│   │   ├── schemas/item.py# Pydantic DTOs
+│   │   └── routers/items.py # API routes
 │   ├── requirements.txt
 │   └── Dockerfile
-├── bot/                   # Telegram-бот (Nanobot)
-│   ├── main.py            # aiogram + OpenAI parsing
+├── bot/                   # Telegram bot (Nanobot)
+│   ├── main.py            # aiogram + LLM parsing
 │   ├── requirements.txt
 │   └── Dockerfile
 ├── frontend/              # React + Vite + Tailwind
 │   ├── src/
-│   │   ├── App.jsx        # Главный компонент
-│   │   ├── api.js         # Axios API клиент
+│   │   ├── App.jsx        # Main component
+│   │   ├── api.js         # Axios API client
 │   │   ├── main.jsx       # Entry point
-│   │   └── index.css      # Tailwind стили
+│   │   └── index.css      # Tailwind styles
 │   ├── index.html
 │   ├── package.json
 │   ├── vite.config.js
 │   ├── tailwind.config.js
-│   ├── nginx.conf         # Nginx для production
+│   ├── nginx.conf         # Nginx for production
 │   ├── Dockerfile         # Multi-stage build
 │   └── postcss.config.js
 ├── docker-compose.yml
@@ -56,82 +56,82 @@
 └── README.md
 ```
 
-## Быстрый старт
+## Quick Start
 
-### 1. Настройка .env
+### 1. Configure .env
 
 ```bash
 cp .env.example .env
 ```
 
-Отредактируйте `.env` и укажите:
-- `TG_BOT_TOKEN` — токен от [@BotFather](https://t.me/BotFather)
-- `OPENROUTER_API_KEY` — ключ от [OpenRouter](https://openrouter.ai/) (есть бесплатные модели)
+Edit `.env` and provide:
+- `TG_BOT_TOKEN` — from [@BotFather](https://t.me/BotFather)
+- `OPENROUTER_API_KEY` — from [OpenRouter](https://openrouter.ai/) (free models available)
 
-> **OpenRouter**: зарегистрируйтесь на openrouter.ai, создайте API key.
-> Бесплатные модели: `google/gemma-2-9b-it:free`, `meta-llama/llama-3.3-8b-instruct:free`.
-> Модель можно сменить через параметр `LLM_MODEL` в `.env`.
+> **OpenRouter**: register at openrouter.ai, create an API key.
+> Free models: `google/gemma-2-9b-it:free`, `qwen/qwen3.6-plus:free`.
+> Change the model via `LLM_MODEL` in `.env`.
 
-### 2. Запуск
+### 2. Run
 
 ```bash
 docker compose up --build
 ```
 
-### 3. Доступ
+### 3. Access
 
-| Сервис | URL |
+| Service | URL |
 |---|---|
-| Фронтенд | http://localhost:3000 |
+| Frontend | http://localhost:3000 |
 | Backend API | http://localhost:8000 |
 | API Docs (Swagger) | http://localhost:8000/docs |
 | PostgreSQL | localhost:5432 |
 
-## Использование
+## Usage
 
-### Через Telegram-бота
+### Via Telegram Bot
 
-1. Откройте вашего бота в Telegram
-2. Напишите: `Купи яблоки, молоко, хлеб и курицу`
-3. Бот распознает продукты, распределит по категориям и сохранит в БД
-4. Откройте фронтенд — товары уже в списке
+1. Open your bot in Telegram
+2. Write: `Buy apples, milk, bread, and chicken`
+3. The bot parses products, categorizes them, and saves to the database
+4. Open the frontend — items are already in the list
 
-### Через фронтенд
+### Via Frontend
 
-1. Откройте http://localhost:3000
-2. Добавьте товар вручную через форму
-3. Отмечайте купленные товары чекбоксами
+1. Open http://localhost:3000
+2. Add items manually via the form
+3. Toggle bought items with checkboxes
 
-### Через API
+### Via API
 
 ```bash
-# Получить список
+# Get list
 curl http://localhost:8000/api/items/1
 
-# Добавить товар
+# Add an item
 curl -X POST http://localhost:8000/api/items/ \
   -H "Content-Type: application/json" \
-  -d '{"name": "Хлеб", "category": "Бакалея", "user_id": 1}'
+  -d '{"name": "Bread", "category": "Grocery", "user_id": 1}'
 
-# Инвертировать статус
+# Toggle bought status
 curl -X PATCH http://localhost:8000/api/items/1
 ```
 
-## Технологии
+## Tech Stack
 
-| Компонент | Стек |
+| Component | Stack |
 |---|---|
 | Backend | Python 3.11, FastAPI, SQLAlchemy (async), asyncpg |
 | Database | PostgreSQL 16 |
-| Bot | aiogram 3.x, OpenRouter (Llama 3.1 8B free) |
+| Bot | aiogram 3.x, OpenRouter (free LLM) |
 | Frontend | React 18, Vite, Tailwind CSS, Axios |
 | DevOps | Docker, Docker Compose, Nginx (multi-stage) |
 
 ## API Reference
 
-| Метод | Endpoint | Описание |
+| Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/api/items/{user_id}` | Список товаров пользователя |
-| `POST` | `/api/items/` | Добавить товар `{name, category, user_id}` |
-| `PATCH` | `/api/items/{item_id}` | Инвертировать `is_bought` |
+| `GET` | `/api/items/{user_id}` | List of items for a user |
+| `POST` | `/api/items/` | Add an item `{name, category, user_id}` |
+| `PATCH` | `/api/items/{item_id}` | Toggle `is_bought` status |
 | `GET` | `/health` | Health check |
