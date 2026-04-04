@@ -12,7 +12,8 @@ const api = axios.create({
 export const getItems = (userId) => api.get(`/items/${userId}`);
 export const createItem = (data) => api.post('/items/', data);
 export const toggleItem = (itemId) => api.patch(`/items/${itemId}`);
-export const clearItems = (userId) => api.delete(`/items/${userId}`);
+export const deleteItem = (itemId) => api.delete(`/items/${itemId}`);
+export const clearItems = (userId) => api.delete(`/items/user/${userId}`);
 export const generateRecipe = (userId) => api.post(`/generate-recipe/${userId}`);
 
 export default api;

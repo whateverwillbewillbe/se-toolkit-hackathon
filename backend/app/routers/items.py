@@ -47,7 +47,18 @@ async def update_item(item_id: int, db: AsyncSession = Depends(get_db)):
     return item
 
 
-@router.delete("/{user_id}", status_code=200)
+@router.delete("/{item_id}", status_code=200)
+async def delete_single_item(item_id: int, db: AsyncSession = Depends(get_db)):
+    """Delete a single item by ID."""
+    result = await db.execute(delete(Item).where(Item.id == item_id))
+    await db.commit()
+    deleted_count = result.rowcount
+    if deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return {"message": f"Deleted item {item_id}", "deleted_count": deleted_count}
+
+
+@router.delete("/user/{user_id}", status_code=200)
 async def delete_items(user_id: int, db: AsyncSession = Depends(get_db)):
     """Delete all items for a user."""
     result = await db.execute(delete(Item).where(Item.user_id == user_id))

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getItems, createItem, toggleItem, clearItems, generateRecipe } from './api';
+import { getItems, createItem, toggleItem, deleteItem, clearItems, generateRecipe } from './api';
 import './App.css';
 
 const DEFAULT_USER_ID = Number(import.meta.env.VITE_DEFAULT_USER_ID) || 1;
@@ -86,6 +86,16 @@ function App() {
       setRecipe(null);
     } catch {
       setError('Failed to clear list');
+    }
+  };
+
+  const handleDeleteItem = async (item) => {
+    try {
+      setError(null);
+      await deleteItem(item.id);
+      setItems((prev) => prev.filter((it) => it.id !== item.id));
+    } catch {
+      setError('Failed to delete item');
     }
   };
 
@@ -205,7 +215,7 @@ function App() {
                   {itemsByCategory[category].map((item) => (
                     <div
                       key={item.id}
-                      className={`item-card bg-white rounded-xl shadow p-4 flex items-center gap-4 ${
+                      className={`item-card bg-white rounded-xl shadow p-4 flex items-center gap-4 group ${
                         item.is_bought ? 'opacity-50' : ''
                       }`}
                     >
@@ -225,6 +235,13 @@ function App() {
                       >
                         {item.name}
                       </span>
+                      <button
+                        onClick={() => handleDeleteItem(item)}
+                        className="opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-500 transition-all duration-200 text-lg p-1"
+                        title="Delete item"
+                      >
+                        ✕
+                      </button>
                     </div>
                   ))}
                 </div>

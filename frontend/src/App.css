@@ -8,6 +8,13 @@
   text-decoration-color: #9ca3af;
 }
 
+/* Delete button always visible on touch devices */
+@media (hover: none) {
+  .group:hover .opacity-0 {
+    opacity: 1 !important;
+  }
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
