@@ -10,7 +10,11 @@ from pydantic_settings import BaseSettings
 
 import aiohttp
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 logger = logging.getLogger(__name__)
 
 
@@ -111,10 +115,113 @@ async def cmd_start(message: types.Message):
 @dp.message(Command("help"))
 async def cmd_help(message: types.Message):
     await message.answer(
-        "Just write your shopping list in any format.\n"
-        "Example: `Get 2 apples, milk, bread, and chicken`\n"
-        "I'll recognize the items and categorize them."
+        "📋 *Available commands:*\n\n"
+        "• Just write your shopping list in any format — I'll recognize items and categorize them\n"
+        "  `Buy 2 apples, milk, bread, and chicken`\n\n"
+        "• `/list` — Show your current shopping list (unbought items)\n\n"
+        "• `/clear` — Clear all items from your list\n\n"
+        "• `/recipe` — Generate a recipe from items you've bought ✅",
+        parse_mode="Markdown",
     )
+
+
+@dp.message(Command("list"))
+async def cmd_list(message: types.Message):
+    chat_id = message.chat.id
+    user_id = settings.DEFAULT_USER_ID
+
+    await bot.send_chat_action(chat_id=chat_id, action="typing")
+
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{settings.BACKEND_URL}/api/items/{user_id}"
+            ) as resp:
+                if resp.status != 200:
+                    raise Exception(f"API returned {resp.status}")
+                items = await resp.json()
+
+        if not items:
+            await message.answer("📝 Your list is empty. Tell me what to buy!")
+            return
+
+        # Group by category
+        from collections import defaultdict
+        by_category = defaultdict(list)
+        for item in items:
+            by_category[item["category"]].append(item)
+
+        parts = ["🛒 *Your Shopping List:*"]
+        for cat in sorted(by_category.keys()):
+            items_in_cat = by_category[cat]
+            parts.append(f"\n*{cat}*\n─────")
+            for item in items_in_cat:
+                status = "✅" if item["is_bought"] else "⬜"
+                parts.append(f"  {status} {item['name']}")
+
+        text = "\n".join(parts)
+        await message.answer(text, parse_mode="Markdown")
+
+    except Exception as e:
+        logger.error(f"Failed to fetch list: {e}")
+        await message.answer("⚠️ Failed to fetch your list. Please try again.")
+
+
+@dp.message(Command("clear"))
+async def cmd_clear(message: types.Message):
+    chat_id = message.chat.id
+    user_id = settings.DEFAULT_USER_ID
+
+    await bot.send_chat_action(chat_id=chat_id, action="typing")
+
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.delete(
+                f"{settings.BACKEND_URL}/api/items/{user_id}"
+            ) as resp:
+                if resp.status != 200:
+                    raise Exception(f"API returned {resp.status}")
+                result = await resp.json()
+
+        count = result.get("deleted_count", 0)
+        await message.answer(f"🗑️ Cleared! Deleted *{count}* items from your list.", parse_mode="Markdown")
+
+    except Exception as e:
+        logger.error(f"Failed to clear list: {e}")
+        await message.answer("⚠️ Failed to clear your list. Please try again.")
+
+
+@dp.message(Command("recipe"))
+async def cmd_recipe(message: types.Message):
+    chat_id = message.chat.id
+    user_id = settings.DEFAULT_USER_ID
+
+    await bot.send_chat_action(chat_id=chat_id, action="typing")
+
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                f"{settings.BACKEND_URL}/api/generate-recipe/{user_id}"
+            ) as resp:
+                if resp.status == 400:
+                    await message.answer(
+                        "🍳 No bought items yet! Mark some items as bought first, then I'll invent a recipe for you."
+                    )
+                    return
+                if resp.status != 200:
+                    raise Exception(f"API returned {resp.status}")
+                recipe = await resp.json()
+
+        recipe_name = recipe.get("name", "Mystery Dish 🍽️")
+        steps = recipe.get("steps", [])
+        steps_text = "\n".join(f"{i+1}. {step}" for i, step in enumerate(steps))
+
+        text = f"👨‍🍳 *{recipe_name}*\n\n{steps_text}\n\nEnjoy! 🍽️"
+        await message.answer(text, parse_mode="Markdown")
+
+    except Exception as e:
+        logger.error(f"Failed to generate recipe: {e}")
+        await message.answer("⚠️ Failed to generate a recipe. Please try again.")
 
 
 @dp.message()
